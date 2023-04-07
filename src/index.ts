@@ -166,7 +166,7 @@ class BodyRewriter {
       function getPath() {
         return location.pathname.slice(1);
       }
-	  function replaceHomePath() {
+	    function replaceHomePath() {
         if (getPage() === PAGE_HOME) {
           history.replaceState(history.state, '', '/');
         }
@@ -223,7 +223,7 @@ class BodyRewriter {
           });
 		  const onpopstate = window.onpopstate;
           window.onpopstate = function() {
-            if (getPath()=='') {
+          if (getPath() === '') {
                 history.replaceState(history.state, 'bypass', '/' + PAGE_HOME);
             }
             onpopstate.apply(this, [].slice.call(arguments));
@@ -237,7 +237,7 @@ class BodyRewriter {
       });
       const replaceState = window.history.replaceState;
       window.history.replaceState = function(state) {
-        if (arguments[1] !== 'bypass') return;
+        if (arguments[1] !== 'bypass' && getPage() === PAGE_HOME) return;
         return replaceState.apply(window.history, arguments);
       };
       const pushState = window.history.pushState;
@@ -249,9 +249,15 @@ class BodyRewriter {
       };
       const open = window.XMLHttpRequest.prototype.open;
       window.XMLHttpRequest.prototype.open = function() {
+        if (arguments[1].includes('msgstore.www.notion.so')) return;
         arguments[1] = arguments[1].replace('${MY_DOMAIN}', 'www.notion.so');
         return open.apply(this, [].slice.call(arguments));
       };
+      const originFetch = window.fetch;
+      window.fetch = async (...args)=>{
+        if (args[0].includes('exp')) return;
+        return originFetch(...args);
+      }
     </script>`,
       {
         html: true,
