@@ -1,0 +1,19 @@
+name = "blog"
+main = "src/index.ts"
+compatibility_date = "2023-04-07"
+
+[[routes]]
+pattern = 'benmix.com'
+custom_domain = true 
+
+[[routes]]
+pattern = 'bendao.me'
+custom_domain = true 
+
+[[routes]]
+pattern = 'blog.benmix.com'
+custom_domain = true 
+
+[[routes]]
+pattern = 'blog.bendao.me'
+custom_domain = true 
