@@ -38,12 +38,20 @@ function handleOptions(request: Request) {
   }
 }
 
+function rewriteHostName(hostname: string) {
+  if (hostname.startsWith("exp.")) {
+    return hostname.replace(MY_DOMAIN, "notion.so");
+  }
+
+  return "www.notion.so";
+}
+
 async function fetchAndApply(request: Request) {
   if (request.method === "OPTIONS") {
     return handleOptions(request);
   }
   let url = new URL(request.url);
-  url.hostname = "www.notion.so";
+  url.hostname = rewriteHostName(url.hostname);
   if (url.pathname === "/robots.txt") {
     return new Response("Sitemap: https://" + MY_DOMAIN + "/sitemap.xml");
   }
@@ -79,6 +87,12 @@ async function fetchAndApply(request: Request) {
     });
     response = new Response(response.body, response);
     response.headers.set("Access-Control-Allow-Origin", "*");
+    return response;
+  } else if (url.pathname.endsWith(".js")) {
+    response = await fetch(url.toString());
+    let body = await response.text();
+    response = new Response(body, response);
+    response.headers.set("Content-Type", "application/x-javascript");
     return response;
   } else if (url.pathname.slice(1) === "") {
     return Response.redirect(`https://${MY_DOMAIN}/${PAGE_HOME}`, 301);
@@ -157,6 +171,7 @@ class BodyRewriter {
       `
       <script>
 	  window.CONFIG.domainBaseUrl = 'https://${MY_DOMAIN}';
+    localStorage.__console = true;
 	  const PAGE_HOME = "${PAGE_HOME}";
       const el = document.createElement('div');
       let redirected = false;
@@ -182,6 +197,7 @@ class BodyRewriter {
         __console.environment.ThemeStore.setState({ mode: 'light' });
       }
       function toggle() {
+        if (!__console.isEnabled) __console.enable();
         if (document.body.classList.contains('dark')) {
           onLight();
         } else {
