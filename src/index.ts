@@ -46,6 +46,12 @@ function rewriteHostName(hostname: string) {
   return "www.notion.so";
 }
 
+function replaceNotionDomainToMyDomain(originStr: string) {
+  return originStr
+    .replace(/www.notion.so/g, MY_DOMAIN)
+    .replace(/notion.so/g, MY_DOMAIN);
+}
+
 async function fetchAndApply(request: Request) {
   if (request.method === "OPTIONS") {
     return handleOptions(request);
@@ -64,12 +70,7 @@ async function fetchAndApply(request: Request) {
   if (url.pathname.startsWith("/app") && url.pathname.endsWith("js")) {
     response = await fetch(url.toString());
     let body = await response.text();
-    response = new Response(
-      body
-        .replace(/www.notion.so/g, MY_DOMAIN)
-        .replace(/notion.so/g, MY_DOMAIN),
-      response
-    );
+    response = new Response(replaceNotionDomainToMyDomain(body), response);
     response.headers.set("Content-Type", "application/x-javascript");
     return response;
   } else if (url.pathname.startsWith("/api")) {
@@ -86,6 +87,11 @@ async function fetchAndApply(request: Request) {
       method: "POST",
     });
     response = new Response(response.body, response);
+    const cookies = response.headers.get("set-cookie");
+    if (cookies) {
+      const replacedCookies = replaceNotionDomainToMyDomain(cookies);
+      response.headers.set("set-cookie", replacedCookies);
+    }
     response.headers.set("Access-Control-Allow-Origin", "*");
     return response;
   } else if (url.pathname.endsWith(".js")) {
