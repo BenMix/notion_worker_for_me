@@ -1,1 +1,1 @@
-# notion_worker_for_me
+# notion_blog
