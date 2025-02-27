@@ -214,7 +214,7 @@ class BodyRewriter {
         const nav = device === 'web' ? document.querySelector('.notion-topbar').firstChild : document.querySelector('.notion-topbar-mobile');
         const gb_el = document.createElement('div');
         
-        gb_el.innerHTML = '<a href="https://github.com/c-dao" target="_blank" rel="noopener noreferrer" class="github-icon" aria-label="GitHub"></a>';
+        gb_el.innerHTML = '<a href="https://github.com/benmix" target="_blank" rel="noopener noreferrer" class="github-icon" aria-label="GitHub"></a>';
         gb_el.className = 'github-button';
         nav.appendChild(gb_el); 
 
